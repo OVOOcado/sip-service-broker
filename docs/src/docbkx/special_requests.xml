@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="special_requests.xml"
+         version="5.0"
+         xml:lang="en"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+
+    <para>Applications servers have possibility to send INFO requests that skips orchestration chain.
+        This is done by including additional header <emphasis role="bold">x-fci: true</emphasis>.
+        Such INFO requests are sent directly towards <emphasis>IM-SCF</emphasis> on either A or B leg dialog.
+        These special requests are always preceded by 183-PRACK-200 handshake initiated by originating application server.
+    </para>
+
+</section>

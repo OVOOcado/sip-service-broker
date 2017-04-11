@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="usage_parameters.xml"
+         version="5.0"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd">
+
+    <section>
+        <title>Accessing Usage Parameters</title>
+
+        <para>The Broker defines a set of statistics counters (usage parameters).
+            They are available by means of JMX, JSLEE Management Console web interface or Twiddle CLI tool.
+        </para>
+
+        <para>Assuming the default broker entity name is set to <emphasis>SipBrokerRA</emphasis>, the Object Name of a
+            the broker is
+            <emphasis>javax.slee.management.usage:type=ResourceUsage,raEntityName=SipBrokerRA</emphasis>.
+            For operation details see section <emphasis>14.13 ResourceUsageMBean interface</emphasis> in reference
+            <biblioref linkend="JAIN_SLEE_REF"/>
+        </para>
+
+        <para>For accessing Usage Parameters in the web iterface refer to
+            <link xlink:href="http://docs.jboss.org/mobicents/jain-slee/2.7.0.FINAL/tools/slee-management-console/user-guide/en-US/html_single/#Resources_usage_parameters"/>
+        </para>
+
+        <para>The Twiddle tool is available in <emphasis>JSLEE_INSTALL_DIR/tools/twiddle</emphasis> directory.
+            For resource adaptor usage parameters operations check section 4.12 usage.resource in
+            <link xlink:href="http://docs.jboss.org/mobicents/jain-slee/2.7.0.FINAL/tools/twiddle/user-guide/en-US/html_single"/>
+        </para>
+    </section>
+
+    <section>
+        <title>List of available Usage Parameters</title>
+        <variablelist>
+            <!--<?dbfo list-presentation="blocks"?>-->
+            <varlistentry>
+                <term>OrchestratedSessionsCount</term>
+                <listitem>
+                    <para>The number of triggered orchestrated sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>SuccessfulSessionsCount</term>
+                <listitem>
+                    <para>The number of successful orchestrated sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>AbortedSessionsCount</term>
+                <listitem>
+                    <para>The number of failed orchestrated sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>RunningOrchestratedSessionsCount</term>
+                <listitem>
+                    <para>The number of running orchestrated sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>AuxSessionsCount</term>
+                <listitem>
+                    <para>The number of triggered auxiliary sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>SuccessfulAuxSessionsCount</term>
+                <listitem>
+                    <para>The number of successful auxiliary sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>AbortedAuxSessionsCount</term>
+                <listitem>
+                    <para>The number of failed auxiliary sessions.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>RunningAuxSessionsCount</term>
+                <listitem>
+                    <para>The number of running auxiliary sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>PingSessionsStarted</term>
+                <listitem>
+                    <para>The number of triggered ping sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>PingSessionsSuccessCount</term>
+                <listitem>
+                    <para>The number of successful ping sessions.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>PingSessionsErrorCount</term>
+                <listitem>
+                    <para>The number of failed ping sessions.
+                    </para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </section>
+
+</section>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="broker_configuration.xml"
+         version="5.0"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="
+           http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <title>Resource Adaptor Configuration</title>
+    <para>This section describes Resource Adaptor Entity configuration - global parameters that define a single instance
+        of the broker.
+    </para>
+    <section>
+        <title>Transient configuration changes</title>
+        <para>RA configuration can be updated by means of JMX or JSLEE management console web interface.
+            These changes are transient and disappear after server shutdown or restart.
+            Updating via JMX can be used for initial configuration preparation during integration phase.
+            In the production environment it is strongly recommended to apply the persistent configuration.
+            JSLEE Management Console interface is available at http://JBOSS_IP:8080/slee-management-console,
+            where JBOSS_IP is the IP address or hostname of the JBOSS AS.
+            See
+            <link xlink:href="http://docs.jboss.org/mobicents/jain-slee/2.7.0.FINAL/tools/slee-management-console/user-guide/en-US/"/>
+            for more details.
+        </para>
+    </section>
+    <section>
+        <title>Persistent configuration</title>
+        <para>To preserve configuration that survives server restart, the broker RA needs to be deployed
+            with the configuration parameters set in the deploy-config.xml descriptor packaged into the RA jar.
+            Therefore applying configuration changes requires the descriptor update, repackaging and jar redeployment.
+            See <xref linkend="package_preparation"/> for more information.
+        </para>
+    </section>
+    <section>
+        <title>Configuration properties</title>
+        <para>Here is the list of possible configuration options for broker RA Entity (single instance of the adaptor).
+        </para>
+        <variablelist>
+            <?dbfo list-presentation="blocks"?>
+            <varlistentry>
+                <term>BROKER_CONFIGURATION_FILE</term>
+                <listitem>
+                    <para>
+                        Absolute path to the broker's orchestration configuration file.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>BROKER_HOSTNAME</term>
+                <listitem>
+                    <para>Broker hostname - used as bind address of the SIP stack and present in the Contact header.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>javax.sip.PORT</term>
+                <listitem>
+                    <para>Broker SIP listening port number.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>javax.sip.TRANSPORT</term>
+                <listitem>
+                    <para>SIP transport (UDP or TCP)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>IM_SCF_HOST</term>
+                <listitem>
+                    <para>IM-SCF hostname</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>IM_SCF_PORT</term>
+                <listitem>
+                    <para>IM-SCF port</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>BROKER_QUEUE_MAX_SIZE</term>
+                <listitem>
+                    <para>Max queue size of the tasks processing for different sessions.
+                        A single task can process SIP events of the single session at a time.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>BROKER_QUEUE_MAX_THREADS</term>
+                <listitem>
+                    <para>Maximum number of threads processing events (SIP requests, responses, timeouts)</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>BROKER_QUEUE_INITIAL_THREADS</term>
+                <listitem>
+                    <para>Initial number of threads processing events.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>BROKER_QUEUE_THREAD_KEEP_ALIVE</term>
+                <listitem>
+                    <para>The time the executor thread is kept alive when not executing its task (processing events).
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>gov.nist.javax.sip.TRACE_LEVEL</term>
+                <listitem>
+                    <para>
+                        SIP Stack trace level. If SIP Stack traces are not used, set the value to -1.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>SIP_OUTGOING_RETRANSMIT_TIMER</term>
+                <listitem>
+                    <para>SIP retransmission timer milliseconds (SIP T1 timer) for outgoing requests.</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </section>
+
+</section>

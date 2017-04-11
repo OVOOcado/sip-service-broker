@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="orchestration_configuration.xml"
+         version="5.0"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="
+           http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <title>Orchestration Configuration</title>
+    <section>
+        <title>Configuration file format</title>
+        <para>Orchestration configuration defines available services and orchestration rulesets.</para>
+        <para>An <emphasis role="bold">application</emphasis> is a logical service definition with two attributes: alias and external.
+        An <emphasis role="bold">alias</emphasis> is a logical name of the service, where <emphasis role="bold">external</emphasis> indicates
+            if the service is located on an external server or it is deployed on the same JSLEE instance.
+        Single application contains one or more <emphasis role="bold">endpoint</emphasis> elements. An endpoint is a SIP URI of the physical service location.
+        Multiple endpoints are used in a Round Robin load balancing for particular service.</para>
+
+        <para>Orchestration section contains one or more <emphasis role="bold">orchestration-ruleset</emphasis> elements.
+        An orchestration-ruleset defines a single orchestration chain. The <emphasis role="bold">servicekey</emphasis> attribute
+        of the orchestration-ruleset element identifies the chain (ruleset).
+            The orchestration-ruleset contains of ordered list of <emphasis role="bold">service</emphasis> elements,
+            which are aliases of the chained services.
+        The content of the orchestration-rules includes also two sequence elements:
+            <emphasis role="bold">error-responses-to-skip-service</emphasis> and <emphasis role="bold">error-responses-to-stop-orchestration</emphasis>.
+            error-responses-to-stop-orchestration is a sequence of response codes for which STOP error response logic is applied.
+            <emphasis role="bold">error-responses-to-stop-orchestration</emphasis> is a sequence of codes for which SKIP logic is applied.
+        For error response codes not indicated by any list the default logic is applied. This is defined for
+            <emphasis role="bold">orchestration-ruleset</emphasis> as <emphasis role="bold">defaultErrorResponseHandling</emphasis> attribute value.
+            This attribute takes two values: STOP or SKIP.
+        </para>
+
+        <para><emphasis role="bold">Note:</emphasis>
+        It is recommended to indicate explicit list of the <emphasis role="bold">SKIP</emphasis> logic error codes with the
+            <emphasis role="bold">error-responses-to-skip-service</emphasis> element
+            and set <emphasis role="bold">defaultErrorResponseHandling</emphasis> attribute to <emphasis role="bold">STOP</emphasis>.
+        </para>
+
+        <para>Detailed format in <xref linkend="orchestration_configuration.xsd"/></para>
+        <para>Example configuration: <xref linkend="example_orchestration.xml"/></para>
+    </section>
+
+    <section>
+        <title>Applying configuration changes</title>
+        <para>The broker applies the orchestration configuration from the file indicated by <emphasis>BROKER_CONFIGURATION_FILE</emphasis>
+        parameter of the Resource Adaptor entity configuration. This takes action when broker RA configuration parameters
+        are saved.
+        Therefore applying changes from the current configuration file requires update of the configuration properties of the resource adaptor entity.
+        </para>
+        <para>
+            For operation details see section <emphasis>14.12 ResourceManagementMBean interface</emphasis> in reference
+            <biblioref linkend="JAIN_SLEE_REF"/>
+        </para>
+    </section>
+
+
+    <!--The above ruleset is defined for servicekey 25000, its default error logic is SKIP.-->
+    <!--The ruleset has only two applications/aliases in the chain: app1 and app4.-->
+    <!--The ruleset defines 406 response code to apply STOP error logic.-->
+
+    <!--I think the file is selfdescribing, let me know if have any doubts.-->
+
+
+    <!--The way of working when deploying the SIP Broker should be the following.-->
+    <!--1. Prepare example broker-config.xml file corresponding to configuration of your applications and endpoints-->
+    <!--2. Unpack the broker jar file (ovoo-sip-broker-ra-du-1.0-SNAPSHOT.jar)-->
+    <!--3. Update the deploy-config.xml file, set the broker-config.xml path, hosts, ports.-->
+    <!--4. Package the broker jar file with updated deploy-config-->
+    <!--5. Copy the broker jar file into the restcomm deploy directory -> $JBOSS_HOME/server/default/deploy/-->
+    <!--To undeploy the broker - simply delete the jar from the deploy directory.-->
+
+    <!--I'll try to put this information in a more formal way. Hope that's enough for now to deploy and start the integration with IM-SCF and at least one application/service.-->
+
+</section>

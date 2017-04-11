@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="endpoint" type="xs:string"/>
+    <xs:element name="application">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="endpoint" maxOccurs="unbounded"
+                            minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute type="xs:string" name="alias" use="optional"/>
+            <xs:attribute type="xs:string" name="external" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="response-code" type="xs:short"/>
+    <xs:element name="service" type="xs:string"/>
+    <xs:element name="error-responses-to-stop-orchestration">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="response-code" maxOccurs="unbounded"
+                            minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="error-responses-to-skip-service">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:element ref="response-code" maxOccurs="unbounded"
+                            minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="orchestration-ruleset">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
+                <xs:element ref="service"/>
+                <xs:element ref="error-responses-to-stop-orchestration"/>
+                <xs:element ref="error-responses-to-skip-service"/>
+            </xs:choice>
+            <xs:attribute type="xs:short" name="servicekey" use="optional"/>
+            <xs:attribute type="xs:string" name="defaultErrorResponseHandling"
+                          use="optional"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="services">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="application" maxOccurs="unbounded"
+                            minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="orchestration-rules">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="orchestration-ruleset" maxOccurs="unbounded"
+                            minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="broker-config">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="services"/>
+                <xs:element ref="orchestration-rules"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
+
+

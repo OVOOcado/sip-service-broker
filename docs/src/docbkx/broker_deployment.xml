@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="broker_deployment.xml"
+         version="5.0"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="
+           http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <para>SIP Service Broker is delivered as JSLEE Resource Adaptor. It has been
+        verified on Restcomm JAIN SLEE 2.8.0.FINAL Release working on top of JBoss AS 5.1.0.GA.
+    </para>
+
+    <section>
+        <title>Prerequisites</title>
+        <para>
+            SIP Service Broker Resource Adaptor runs in JSLEE environment.
+        </para>
+        <para>
+            Refer to <link xlink:href="http://documentation.telestax.com/core/jain_slee/JAIN_SLEE_User_Guide.html"/>
+            for prerequisites and JSLEE installation instruction.
+        </para>
+    </section>
+
+    <section xml:id="package_preparation">
+        <title>Package preparation</title>
+        <para>Broker Resource Adaptor is packaged with default set of configuration properties in the deployment descriptor.
+            The deployment requires applying site custom configuration. This involves jar unpackaging, <emphasis>deploy-config.xml</emphasis> descriptor update and repackaging.
+            This can be done with provided <emphasis role="bold">update-properties.py</emphasis> Python script.
+        </para>
+        <para>
+            Here are the steps that build site custom package.
+            <orderedlist>
+                <listitem>
+                    <para>Prepare site properties file with the desired configuration.</para>
+                    <para>Use <xref linkend="example.properties"/> as a template.</para>
+                </listitem>
+                <listitem>
+                    <para>Copy delivered package, update-properties.py and properties file into single directory</para>
+                </listitem>
+                <listitem>
+                    <para>Run update-properties.py script:</para>
+                    <cmdsynopsis>
+                        <command>update-properties.py</command>
+                        <arg choice='plain'><replaceable>site1.properties</replaceable></arg>
+                        <arg choice='plain'><replaceable>ovoo-sip-broker-ra-du-1.0.9.jar</replaceable></arg>
+                        <arg choice='plain'><replaceable>site1</replaceable></arg>
+                    </cmdsynopsis>
+                    <para>where:</para>
+                    <variablelist>
+                        <varlistentry>
+                            <term>site1.properties</term>
+                            <listitem><para>Prepared site configuration properties file.</para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>ovoo-sip-broker-ra-du-1.0.9.jar</term>
+                            <listitem><para>Provided broker package</para></listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>site1</term>
+                            <listitem><para>The name of the site configuration</para></listitem>
+                        </varlistentry>
+                    </variablelist>
+                    <para>Execution results in custom package ready for deployment:
+                        <emphasis role="bold">ovoo-sip-broker-ra-du-1.0.9_site1.jar</emphasis></para>
+                </listitem>
+            </orderedlist>
+        </para>
+    </section>
+
+    <section>
+        <title>Deployment</title>
+        <para>
+            Deployment of the prepared site package is done by copying the jar into <emphasis>$JBOSS_HOME/server/profile_name/deploy/</emphasis>
+            directory.
+            </para>
+        <para>See
+            <link xlink:href="http://documentation.telestax.com/core/jain_slee/JAIN_SLEE_User_Guide.html#_management"/>
+            for deployment management details.
+        </para>
+    </section>
+
+
+</section>

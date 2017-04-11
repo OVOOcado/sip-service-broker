@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="auxiliary_session.xml"
+         version="5.0"
+         xml:lang="en"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="
+           http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <para>Applications servers might initiate dialogs excluded from orchestration chain.
+        Such additional dialogs are created with INVITE requests with special header
+        <emphasis role="bold">x-ica: true</emphasis> or <emphasis role="bold">x-mrf: true</emphasis>.
+        These dialogs create so called auxiliary session, where broker acts as B2BUA simply forwarding all requests
+        and responses between originating application server and IM-SCF.
+        From the broker point of view there is no relation between the orchestrated session and these special dialogs.
+        Therefore auxiliary session initialization and termination is done independently from the orchestrated session,
+        i.e. the session control is fully managed by the originating application server.
+    </para>
+
+</section>

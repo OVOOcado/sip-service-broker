@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bibliography xml:id="references.xml" xmlns='http://docbook.org/ns/docbook'>
+    <title>References</title>
+    <bibliomixed id="JAIN_SLEE_REF">
+        <bibliomset>
+            <title>JAIN SLEE (JSLEE) 1.1 Specification, Final Release</title>.
+        </bibliomset>
+    </bibliomixed>
+
+    <bibliomixed id="SIP_RFC_3261">
+        <bibliomset>
+            <title>SIP: Session Initiation Protocol RFC 3261</title>.
+        </bibliomset>
+    </bibliomixed>
+
+    <bibliomixed id="SIP_RFC_PODID">
+        <bibliomset>
+            <title>Private SIP Extension for Original Dialog Identifier
+                (https://tools.ietf.org/html/draft-henrikson-sip-original-dialog-id-02)</title>.
+        </bibliomset>
+    </bibliomixed>
+
+    <bibliomixed id="SIP_RFC_100rel">
+        <bibliomset>
+            <title>Reliability of Provisional Responses in SIP RFC 3262</title>.
+        </bibliomset>
+    </bibliomixed>
+
+
+
+</bibliography>

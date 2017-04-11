@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<broker-config>
+    <services>
+        <application alias="app1" external="true">
+            <endpoint>sip:app1.domain.org:5060</endpoint>
+        </application>
+        <application alias="app2" external="true">
+            <endpoint>sip:app2.domain.org:5060</endpoint>
+        </application>
+        <application alias="app3" external="true">
+            <endpoint>sip:ep1.app3.domain.org:5060</endpoint>
+            <endpoint>sip:ep2.app3.domain.org:5060</endpoint>
+            <endpoint>sip:ep3.app3.domain.org:50860</endpoint>
+        </application>
+    </services>
+
+    <orchestration-rules>
+        <orchestration-ruleset servicekey="25000"
+                               defaultErrorResponseHandling="SKIP">
+            <service>app1</service>
+            <error-responses-to-stop-orchestration>
+                <response-code>301</response-code>
+                <response-code>302</response-code>
+            </error-responses-to-stop-orchestration>
+            <error-responses-to-skip-service/>
+        </orchestration-ruleset>
+
+        <orchestration-ruleset servicekey="25001"
+                               defaultErrorResponseHandling="STOP">
+            <service>app1</service>
+            <service>app2</service>
+            <service>app3</service>
+            <error-responses-to-skip-service>
+                <response-code>404</response-code>
+                <response-code>406</response-code>
+                <response-code>408</response-code>
+            </error-responses-to-skip-service>
+            <error-responses-to-stop-orchestration>
+                <response-code>302</response-code>
+                <response-code>502</response-code>
+                <response-code>503</response-code>
+                <response-code>504</response-code>
+            </error-responses-to-stop-orchestration>
+        </orchestration-ruleset>
+    </orchestration-rules>
+</broker-config>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="chaining_rules.xml"
+         version="5.0"
+         xml:lang="en"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <para>The chaining rules define the behaviour of the broker when forwarding SIP requests or responses as well
+    as handling particular error responses.
+    </para>
+
+    <para>The chain of services is determined by the <emphasis>servicekey</emphasis> parameter present in the
+        Route header of the initial INVITE. The services are called with separate dialogs where INVITE sent towards
+        next service in the chain contains the headers and the body present in the incoming INVITE from the previous service.
+        The broker only modifies the headers responsible for proper message routing.
+        The different incoming dialogs within a single orchestration session are correlated by means of additional
+        header <emphasis>P-Original-Dialog-ID</emphasis> set by the broker in the outgoing INVITEs.
+    </para>
+
+    <para>All the SIP responses and requests other than INVITE are chained on the dialogs established by INVITE.
+        The requests are forwarded in either direction with respect to SIP forwarding rules.
+    </para>
+
+    <para>The orchestration chain may define two ways to deal with error response to INVITEs: <emphasis>ERROR</emphasis> logic
+        and <emphasis>SKIP</emphasis> logic. When certain error response indicates SKIP logic, the broker excludes
+        responding service from the chain and sends INVITE to the next service
+        (or IM-SCF B leg if response received from last chained service).
+        An error response indicating STOP logic is forwarded back to the previous service. Additionally,
+        the chaining state of the responding service is rolled back as it was never executed within current session.
+        The service that receives the error response has the control on the chaining session.
+        It therefore might decide forward response back (on its A leg), send another INVITE requests towards the broker
+        or initiate out-of-orchestration session (see <xref linkend="auxiliary_session.xml"/>).
+    </para>
+
+    <para>INVITE sending errors are considered as other error responses and checked against the error logic rules.
+        <emphasis>Client Transaction timeout</emphasis> for INVITE is mapped to <emphasis>REQUEST_TIMEOUT (408)</emphasis>.
+        <emphasis>Transaction layer error</emphasis> for INVITE is mapped to <emphasis>SERVICE_UNAVAILABLE (503)</emphasis>.
+    </para>
+
+    <para>The session is kept alive by the broker until all involved dialogs are terminated.
+    </para>
+
+    <para>The orchestration configuration is described in <xref linkend="orchestration_configuration.xml"/>
+    </para>
+
+</section>

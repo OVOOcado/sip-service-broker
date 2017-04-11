@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="introduction.xml"
+         version="5.0"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <section>
+        <title>Definitions</title>
+        <variablelist>
+            <varlistentry>
+                <term>JAIN</term>
+                <listitem>
+                    <para>Java APIs for Integrated Networks.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>JSLEE</term>
+                <listitem>
+                    <para>JAIN Service Logic Execution Environment.</para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>RA</term>
+                <listitem>
+                    <para>Resource Adaptor.</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </section>
+
+    <section>
+        <title>Overview</title>
+        <para>SIP Service Broker is a JSLEE Resource Adaptor that offers session orchestration.
+        It puts independent SIP services in the chain which allow to trigger different features within a single
+        call session.
+        </para>
+        <para>Currently the broker can orchestrate services that are deployed on external application servers.
+            In the next version it will be possible to deploy services on the same JSLEE instance which will reduce
+            latency and simplify configuration.
+        </para>
+        <informalfigure xml:id="service_broker_high_level_view">
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="media/SipServiceBrokerRA.png" scalefit="1" width="100%" contentdepth="100%"></imagedata>
+                </imageobject>
+                <caption>SIP Service Broker high level view</caption>
+            </mediaobject>
+        </informalfigure>
+    </section>
+
+    <para></para>
+</section>

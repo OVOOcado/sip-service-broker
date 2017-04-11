@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="ping_session.xml"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <para>
+        Services endpoints availability can be checked by means of SIP OPTIONS request with SIP URI in the
+        format <emphasis role="bold">alias1_alias2_alias5@broker</emphasis>. The broker parses the URI
+        and selects the aliases/services to check for availability.
+        For each alias the broker tries to reach at least one responding physical endpoint.
+    </para>
+    <para>
+        The broker responds with 200 OK to the originating OPTIONS request if there is at least one responding endpoint for
+        each alias/service, see diagram below.
+    </para>
+    <informalfigure xml:id="successful_ping">
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="media/ping_successful.png" scalefit="1" width="100%" contentdepth="100%"></imagedata>
+            </imageobject>
+            <caption>Successful ping session</caption>
+        </mediaobject>
+    </informalfigure>
+    <para>
+        If for any alias no endpoint is available, the broker returns error response 480 to the originating OPTIONS request, see diagram below.
+    </para>
+    <informalfigure xml:id="failed_ping">
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="media/ping_failed.png" scalefit="1" width="100%" contentdepth="100%"></imagedata>
+            </imageobject>
+            <caption>Failed ping session</caption>
+        </mediaobject>
+    </informalfigure>
+
+</section>

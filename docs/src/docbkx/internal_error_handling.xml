@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="internal_error_handling.xml"
+         version="5.0"
+         xml:lang="en"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="
+           http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <para>There are certain error conditions in the forwarding logic that are not possible to recover the chaining gracefully.
+        The error cases include SIP stack level exceptions when sending responses, PRACK requests, INFO requests, BYE requests
+        and their corresponding timeouts.
+    </para>
+    <para>If particular error handling is not defined by chaining rulesets, the broker ceases the session by disconnecting
+        all involved dialogs. This is done by sending either CANCEL or BYE requests (depending on the dialog's state)
+        towards the invited services. After disconnecting all the parties the session is removed and
+        <emphasis>AbortedSessionsCount</emphasis> is increased.
+    </para>
+
+</section>

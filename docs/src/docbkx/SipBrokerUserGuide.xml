@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
+
+    <info>
+        <title>OVOO SIP Service Broker Resource Adaptor Guide</title>
+    </info>
+
+    <chapter>
+        <title>Introduction</title>
+        <xi:include href="introduction.xml"/>
+    </chapter>
+
+    <chapter>
+        <title>Orchestration chain</title>
+        <section>
+            <title>Orchestrated session</title>
+            <para>Orchestrated session is started by the INVITE request for session that is not yet orchestrated and
+            does not indicate special treatment by other means (like special headers). The session forwards the INVITE
+            requests, on-dialog requests and responses to the chained services according to the rules defined below.
+            </para>
+            <section>
+                <title>Chaining rules</title>
+                <xi:include href="chaining_rules.xml"/>
+            </section>
+            <section>
+                <title>Reliable response processing</title>
+                <xi:include href="reliable_response.xml"/>
+            </section>
+            <section>
+                <title>Special requests</title>
+                <xi:include href="special_requests.xml"/>
+            </section>
+            <section>
+                <title>Internal error handling</title>
+                <xi:include href="internal_error_handling.xml"/>
+            </section>
+        </section>
+        <section>
+            <title>Auxiliary session</title>
+            <xi:include href="auxiliary_session.xml"/>
+        </section>
+        <section>
+            <title>Ping session</title>
+            <xi:include href="ping_session.xml"/>
+        </section>
+    </chapter>
+
+    <chapter>
+        <title>Service Broker Configuration</title>
+        <xi:include href="broker_configuration.xml"/>
+        <xi:include href="orchestration_configuration.xml"/>
+    </chapter>
+
+    <chapter>
+        <title>Installation</title>
+        <xi:include href="broker_deployment.xml"/>
+    </chapter>
+
+    <chapter>
+        <title>Usage Parameters (statistics)</title>
+        <xi:include href="usage_parameters.xml"/>
+    </chapter>
+
+    <!--<chapter>-->
+        <!--<title>Significant architectural components</title>-->
+        <!--<para>Queue</para>-->
+        <!--<para>Orchestrated session - with state diagram</para>-->
+        <!--<para>P-Original-Dialog-ID as session key</para>-->
+        <!--<para>Ping session</para>-->
+        <!--<para>Auxiliary session</para>-->
+    <!--</chapter>-->
+
+    <xi:include href="references.xml"/>
+
+    <appendix id="orchestration_configuration.xsd">
+        <title>Orchestration configuration schema</title>
+        <para>Here is an xsd schema of the orchestration configuration:</para>
+        <programlisting language="xsd">
+            <xi:include href="broker-config.xsd" parse="text"/>
+        </programlisting>
+    </appendix>
+
+    <appendix id="example_orchestration.xml">
+        <title>Example orchestration configuration</title>
+        <para>Here is an example orchestration configuration:</para>
+        <programlisting language="xml">
+            <xi:include href="example_orchestration.xml" parse="text"/>
+        </programlisting>
+    </appendix>
+
+    <appendix id="example.properties">
+        <title>Example site configuration properties</title>
+        <para>Here is an example properties file with site configuration to be used for package preparation:</para>
+        <programlisting>
+            <xi:include href="example.properties" parse="text"/>
+        </programlisting>
+    </appendix>
+
+</book>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section xml:id="reliable_response.xml"
+         version="5.0"
+         xml:lang="en"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="
+           http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+           http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd">
+
+    <para>Reliable responses sent with special header <emphasis role="bold">x-as: true</emphasis> are considered
+        as responses originated from application servers. Such responses are forwarded back only to the last application server
+        that originated its own reliable response or to the IM-SCF (if none of the application servers originated reliable response).
+        This special chaining also involves PRACK with its 200 OK response.
+    </para>
+    <para>
+        The treatment above does not apply to regular reliable responses, i.e. the ones originating from IM-SCF B leg.
+        These responses (and corresponding PRACK/200OK) are forwarded back through all the application servers in the chain.
+    </para>
+
+</section>

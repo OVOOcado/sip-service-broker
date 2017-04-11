@@ -15,6 +15,7 @@
         <module>ratype</module>
         <module>ra</module>
         <module>du</module>
+        <module>docs</module>
     </modules>
 
     <pluginRepositories>
