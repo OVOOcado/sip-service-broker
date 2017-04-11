@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE resource-adaptor-jar PUBLIC "-//Sun Microsystems, Inc.//DTD JAIN SLEE Resource Adaptor 1.1//EN" "http://java.sun.com/dtd/slee-resource-adaptor-jar_1_1.dtd">
+
+<resource-adaptor-jar>
+
+    <resource-adaptor>
+        <resource-adaptor-name>SipBrokerResourceAdaptor</resource-adaptor-name>
+        <resource-adaptor-vendor>pl.ovoo</resource-adaptor-vendor>
+        <resource-adaptor-version>${version}</resource-adaptor-version>
+
+        <resource-adaptor-type-ref>
+            <resource-adaptor-type-name>JSIP</resource-adaptor-type-name>
+            <resource-adaptor-type-vendor>net.java.slee</resource-adaptor-type-vendor>
+            <resource-adaptor-type-version>1.2</resource-adaptor-type-version>
+        </resource-adaptor-type-ref>
+
+        <library-ref>
+            <library-name>ovoo-sip-broker-library</library-name>
+            <library-vendor>pl.ovoo</library-vendor>
+            <library-version>${version}</library-version>
+        </library-ref>
+
+        <resource-adaptor-classes>
+            <resource-adaptor-class supports-active-reconfiguration="True">
+                <resource-adaptor-class-name>pl.ovoo.slee.resource.sip.broker.SipBrokerResourceAdaptor</resource-adaptor-class-name>
+            </resource-adaptor-class>
+            <resource-adaptor-usage-parameters-interface>
+                <resource-adaptor-usage-parameters-interface-name>
+                    pl.ovoo.slee.resource.sip.broker.SipBrokerUsageParameters
+                </resource-adaptor-usage-parameters-interface-name>
+                <usage-parameter name="runningOrchestratedSessionsCount"/>
+                <usage-parameter name="orchestratedSessionsCount"/>
+                <usage-parameter name="successfulSessionsCount"/>
+                <usage-parameter name="abortedSessionsCount"/>
+                <usage-parameter name="pingSessionsStarted"/>
+                <usage-parameter name="pingSessionsSuccessCount"/>
+                <usage-parameter name="pingSessionsErrorCount"/>
+                <usage-parameter name="runningAuxSessionsCount"/>
+                <usage-parameter name="auxSessionsCount"/>
+                <usage-parameter name="successfulAuxSessionsCount"/>
+                <usage-parameter name="abortedAuxSessionsCount"/>
+            </resource-adaptor-usage-parameters-interface>
+        </resource-adaptor-classes>
+
+        <config-property>
+            <description>SIP Broker hostname, used in the Contact header in the outgoing requests.</description>
+            <config-property-name>BROKER_HOSTNAME</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>localhost</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>SIP Broker listening port.</description>
+            <config-property-name>javax.sip.PORT</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>5060</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>Transport layer protocol, either UDP or TCP.</description>
+            <config-property-name>javax.sip.TRANSPORT</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>UDP</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>IM-SCF SIP hostname, used in the Route header towards IM-SCF.</description>
+            <config-property-name>IM_SCF_HOST</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>127.0.0.1</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>IM-SCF SIP port, used in the Route header towards IM-SCF.</description>
+            <config-property-name>IM_SCF_PORT</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>5090</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>Absolute path of the broker-config.xml file containing orchestration rulesets.</description>
+            <config-property-name>BROKER_CONFIGURATION_FILE</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+            <config-property-value>src/test/resources/META-INF/broker-config.xml</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>The maximum size of the queue holding incoming events before they are processed.</description>
+            <config-property-name>BROKER_QUEUE_MAX_SIZE</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>1000</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>Maximum number of threads processing the incoming events.</description>
+            <config-property-name>BROKER_QUEUE_MAX_THREADS</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>500</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>Initial number of threads processing the incoming events.</description>
+            <config-property-name>BROKER_QUEUE_INITIAL_THREADS</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>20</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>Time the events executor threads are kept alive when not processing events.</description>
+            <config-property-name>BROKER_QUEUE_THREAD_KEEP_ALIVE</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>2000</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>SIP Stack trace level. Use value -1 to disable SIP trace.</description>
+            <config-property-name>gov.nist.javax.sip.TRACE_LEVEL</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>-1</config-property-value>
+        </config-property>
+
+        <config-property>
+            <description>SIP retramsmission timer milliseconds (SIP T1 timer) for outgoing requests.</description>
+            <config-property-name>SIP_OUTGOING_RETRANSMIT_TIMER</config-property-name>
+            <config-property-type>java.lang.Integer</config-property-type>
+            <config-property-value>50</config-property-value>
+        </config-property>
+
+    </resource-adaptor>
+
+
+    <security-permissions>
+        <security-permission-spec />
+    </security-permissions>
+</resource-adaptor-jar>

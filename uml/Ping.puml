@@ -1,0 +1,18 @@
+@startuml
+
+SIP_Router -> ServiceBroker: SIP OPTIONS
+ServiceBroker -> AS1_endpoint_1: SIP OPTIONS
+ServiceBroker <-- AS1_endpoint_1: 200 OK
+
+ServiceBroker -> AS2_endpoint_1: SIP OPTIONS
+ServiceBroker <-- AS2_endpoint_1: 480 (Temporary Unavailable)
+
+ServiceBroker -> AS2_endpoint_2: SIP OPTIONS
+ServiceBroker <-- AS2_endpoint_2: 200 OK
+
+ServiceBroker -> AS3_endpoint_1: SIP OPTIONS
+ServiceBroker <-- AS3_endpoint_1: 200 OK
+
+SIP_Router <-- ServiceBroker: 200 ok
+
+@enduml

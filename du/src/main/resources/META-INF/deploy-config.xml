@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy-config>
+    <ra-entity
+            resource-adaptor-id="ResourceAdaptorID[name=SipBrokerResourceAdaptor,vendor=pl.ovoo,version=${version}]"
+            entity-name="SipBrokerRA">
+        <properties>
+            <property name="BROKER_CONFIGURATION_FILE" type="java.lang.String"
+                      value="/usr/share/sipbroker/traffic-test-broker-config.xml"/>
+            <property name="javax.sip.TRANSPORT" type="java.lang.String" value="UDP"/>
+            <property name="BROKER_HOSTNAME" type="java.lang.String" value="127.0.0.1"/>
+            <property name="javax.sip.PORT" type="java.lang.Integer" value="5060"/>
+            <property name="IM_SCF_HOST" type="java.lang.String" value="localhost"/>
+            <property name="IM_SCF_PORT" type="java.lang.Integer" value="5090"/>
+            <property name="BROKER_QUEUE_MAX_SIZE" type="java.lang.Integer" value="1000"/>
+            <property name="BROKER_QUEUE_MAX_THREADS" type="java.lang.Integer" value="200"/>
+            <property name="BROKER_QUEUE_INITIAL_THREADS" type="java.lang.Integer" value="20"/>
+            <property name="BROKER_QUEUE_THREAD_KEEP_ALIVE" type="java.lang.Integer" value="2000"/>
+            <property name="gov.nist.javax.sip.TRACE_LEVEL" type="java.lang.Integer" value="-1"/>
+            <property name="SIP_OUTGOING_RETRANSMIT_TIMER" type="java.lang.Integer" value="100"/>
+
+        </properties>
+    </ra-entity>
+</deploy-config>
