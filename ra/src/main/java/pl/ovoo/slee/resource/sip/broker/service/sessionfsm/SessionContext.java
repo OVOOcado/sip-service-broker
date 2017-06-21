@@ -33,11 +33,15 @@ import pl.ovoo.slee.resource.sip.broker.service.config.OrchestrationRuleset;
 import pl.ovoo.slee.resource.sip.broker.utils.SipBrokerLogger;
 
 import javax.sip.Dialog;
+import javax.sip.header.CallIdHeader;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -65,6 +69,8 @@ public class SessionContext {
     private boolean reliableResponseProcessing;
     // counts the active dialogs, to be used for session termination
     private Set<Dialog> pendingDialogs = new HashSet<>();
+    // CallIdHeader to ViaHeader mapping to identify the incoming INVITEs as potential retransmissions
+    private transient Map<CallIdHeader, ViaHeader> initialInvitesIdentifiers = new HashMap<>();
 
     public SessionContext(SipBrokerContext brokerContext, OrchestratedSession session, OrchestrationRuleset
             ruleset) {
@@ -259,5 +265,25 @@ public class SessionContext {
 
     public boolean isReliableResponseProcessing() {
         return reliableResponseProcessing;
+    }
+
+    /**
+     * Stores CallId to last Via header from the incoming initial INVITE
+     * @param callIdHeader - CallId header
+     * @param viaHeader    - last Via header
+     */
+    public void storeCallIdToViaMapping(CallIdHeader callIdHeader, ViaHeader viaHeader) {
+        this.initialInvitesIdentifiers.put(callIdHeader, viaHeader);
+    }
+
+    /**
+     * Returns stored Via header from initial INVITE identified by CallId
+     *
+     * @param callIdToCheck - the call id to check
+     *
+     * @return corresponding Via header if already stored
+     */
+    public ViaHeader findInitialInviteLastVia(CallIdHeader callIdToCheck) {
+        return initialInvitesIdentifiers.get(callIdToCheck);
     }
 }

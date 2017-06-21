@@ -20,6 +20,7 @@
 package pl.ovoo.slee.resource.sip.broker.service.eventqueue;
 
 import java.util.EventObject;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * This is a session tasks interface, should be used to enqueue messages/events
@@ -32,12 +33,10 @@ public interface SessionTasks extends Runnable {
 
     /**
      * It adds event for execution.
-     * If insertion of new event causes SessionTasks status change, it returns true,
-     * which means that the executor should be enqueued for processing.
      *
-     * @param message - sip message to enqueue
-     * @return status
+     * @param message  - sip message to enqueue
+     * @param executor - executor instance that runs the tasks
      */
-    boolean enqueueAndGetStatusChange(EventObject message);
+    void enqueueAndExecute(EventObject message, ThreadPoolExecutor executor);
 
 }
