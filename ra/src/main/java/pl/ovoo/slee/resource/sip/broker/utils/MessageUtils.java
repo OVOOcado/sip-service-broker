@@ -61,7 +61,7 @@ public class MessageUtils {
 
     private static final String P_ORIGINAL_DIALOG_ID = "P-Original-Dialog-ID";
     private static final int DEFAULT_MAX_FORWARDS = 70;
-    private static final AtomicLong sequenceNumber = new AtomicLong(0L);
+    private static final long SEQ_NUMBER_BASE = 1L;
     private static final List<String> EXCLUDED_RESPONSE_HEADERS = new ArrayList<>();
     private static final List<String> EXCLUDED_REQUEST_HEADERS = new ArrayList<>();
     private static final List<String> EXCLUDED_ACK_HEADERS = new ArrayList<>();
@@ -176,8 +176,7 @@ public class MessageUtils {
         Request newInvite;
         try {
             maxForwardsHeader = context.headerFactory.createMaxForwardsHeader(DEFAULT_MAX_FORWARDS);
-            cSeqHeader = context.headerFactory.createCSeqHeader(sequenceNumber.incrementAndGet(),
-                    Request.INVITE);
+            cSeqHeader = context.headerFactory.createCSeqHeader(SEQ_NUMBER_BASE, Request.INVITE);
 
             if(contentTypeHeader != null){
                 newInvite = context.messageFactory.createRequest(incomingRequest.getRequestURI(), Request.INVITE,
@@ -274,7 +273,7 @@ public class MessageUtils {
         ToHeader to = context.headerFactory.createToHeader(endpoint, null);
         FromHeader from = context.headerFactory.createFromHeader(context.getBrokerContactHeader().getAddress(), null);
         MaxForwardsHeader maxForwardsHeader = context.headerFactory.createMaxForwardsHeader(DEFAULT_MAX_FORWARDS);
-        CSeqHeader cSeq = context.headerFactory.createCSeqHeader(sequenceNumber.incrementAndGet(), Request.OPTIONS);
+        CSeqHeader cSeq = context.headerFactory.createCSeqHeader(SEQ_NUMBER_BASE, Request.OPTIONS);
 
         return context.messageFactory.createRequest(requestUri, Request.OPTIONS,
                 callId, cSeq, from, to, new ArrayList<ViaHeader>(), maxForwardsHeader);
