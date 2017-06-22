@@ -812,4 +812,20 @@ public abstract class SessionStateBase implements State {
 
         return false;
     }
+
+    /**
+     * Creates new response with provided status code for given request
+     *
+     * @param statusCode status code of the response
+     * @param request    request to create response for
+     * @return new Response object
+     */
+    protected Response createNewResponse(int statusCode, Request request) {
+        try {
+            return context.getMessageFactory().createResponse(statusCode, request);
+        } catch (ParseException ignored) {
+            // will not happen if Response constants are used
+            throw new IllegalArgumentException("Unexpected response code: " + statusCode);
+        }
+    }
 }

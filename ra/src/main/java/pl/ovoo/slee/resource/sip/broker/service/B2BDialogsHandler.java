@@ -421,6 +421,42 @@ public abstract class B2BDialogsHandler {
         }
     }
 
+    /**
+     * Sends new SIP response towards this handler
+     *
+     * @param response - the response to send
+     */
+    public void sendNewResponse(Response response) throws SendResponseError {
+        logger.debug("forwardResponse towards: {}", this);
+
+        if (isLastServerTransaction()) {
+            try {
+                // cease all pending transactions (PRACK, INFO)
+                if(response.getStatusCode() >= Response.MULTIPLE_CHOICES){
+                    respondToPendingRequestsOnDialogTerminatingResponse();
+                }
+
+                ServerTransaction st = getLastServerTransaction();
+                st.sendResponse(response);
+                st.setApplicationData(getReferenceWrapper());
+
+                logger.debug("Response sent towards {}", this);
+
+                // null transaction in case of final response
+                if (response.getStatusCode() >= Response.OK) {
+                    setLastServerTransaction(null);
+                    setLastIncomingRequest(null);
+                }
+
+            } catch (SipException | InvalidArgumentException e) {
+                logger.error("Not possible to send response to {}", this, e);
+                throw new SendResponseError("Not possible to send response back to: " + this, e);
+            }
+        } else {
+            logger.warn("No server transaction to forward response towards {}", this);
+        }
+    }
+
     public void setNextHandler(B2BDialogsHandler next) {
         nextAs = next;
     }
