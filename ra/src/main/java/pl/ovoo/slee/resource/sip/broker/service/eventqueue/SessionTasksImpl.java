@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import java.util.EventObject;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * This is basic implementation of the session SessionTasks.
@@ -33,7 +34,7 @@ import java.util.Queue;
  * New events might jump in while executing existing events,
  * in such case they are added to the queue and executed within this thread.
  * If a new event comes when the task is not executing and not enqueued,
- * the method enqueueAndGetStatusChange returns true. In this case the producer thread
+ * the method enqueueAndExecute returns. In this case the producer thread
  * should put this executor instance for execution in the external BlockingQueue.
  */
 public class SessionTasksImpl implements SessionTasks {
@@ -48,15 +49,21 @@ public class SessionTasksImpl implements SessionTasks {
         logger = eventHandler.getSessionLogger(getClass());
     }
 
-    public synchronized boolean enqueueAndGetStatusChange(EventObject event) {
-        boolean statusChanged = false;
+    @Override
+    public synchronized void enqueueAndExecute(EventObject event, ThreadPoolExecutor executor) {
+        boolean firstEvent = false;
         if (itsStatus == RunStatus.EMPTY) {
             itsStatus = RunStatus.ENQUEUED;
-            statusChanged = true;
+            firstEvent = true;
         }
         queue.add(event);
         logger.debug("Event {} enqueued, current queue status: {}", event.getClass().getSimpleName(), itsStatus);
-        return statusChanged;
+
+        if (firstEvent) {
+            // status changed from empty to enqueued,
+            // must put this session tasks into execution
+            executor.execute(this);
+        }
     }
 
     /*
@@ -70,7 +77,7 @@ public class SessionTasksImpl implements SessionTasks {
         if (event == null) {
             // no more messages to process
             // status updated here in order to be possible to enqueue message
-            // in case of concurrent thread is calling enqueueAndGetStatusChange now
+            // in case of concurrent thread is calling enqueueAndExecute now
             itsStatus = RunStatus.EMPTY;
         } else {
             itsStatus = RunStatus.RUNNING;
@@ -78,6 +85,7 @@ public class SessionTasksImpl implements SessionTasks {
         return event;
     }
 
+    @Override
     public void run() {
         logger.debug("Starting executor");
         EventObject event = getNextEvent();

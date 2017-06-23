@@ -58,11 +58,11 @@ public class AuxiliarySession extends SessionEventHandler {
     private final String sessionId;
     private Request lastIncomingRequest;
     private Request lastOutgoingInvite;
-    private Request lastIncomingInfoRequest;
-    private Request lastIncomingPrackRequest;
+    private Request infoRequest;
+    private Request prackRequest;
     private ServerTransaction lastServerTransaction;
-    private ServerTransaction lastInfoServerTransaction;
-    private ServerTransaction lastPrackServerTransaction;
+    private ServerTransaction infoServerTransaction;
+    private ServerTransaction prackServerTransaction;
     private Response lastSessionProgressResponse;
 
     private Dialog incomingDialog;
@@ -90,7 +90,6 @@ public class AuxiliarySession extends SessionEventHandler {
                 handleRequest((RequestEvent) event);
             } catch (UnrecoverableError e) {
                 logger.error("Unrecoverable error occurred for request.", e);
-                removeSessionOnError("Request error: " + e.getMessage());
             }
 
         } else if (event instanceof ResponseEvent) {
@@ -99,7 +98,6 @@ public class AuxiliarySession extends SessionEventHandler {
                 handleResponse((ResponseEvent) event);
             } catch (SendResponseError e) {
                 logger.error("Unrecoverable error occurred for response.", e);
-                removeSessionOnError("Response error: " + e.getMessage());
             }
 
         } else if (event instanceof TimeoutEvent) {
@@ -109,7 +107,6 @@ public class AuxiliarySession extends SessionEventHandler {
                 handleTransactionTimeout((TimeoutEvent) event);
             } catch (SendResponseError e) {
                 logger.error("Unrecoverable error occurred for timeout.", e);
-                removeSessionOnError("Response error: " + e.getMessage());
             }
 
         } else if (event instanceof DialogTimeoutEvent) {
@@ -138,22 +135,19 @@ public class AuxiliarySession extends SessionEventHandler {
             logger.warn("ServerTransaction timeout for request {}", st.getRequest().getMethod());
             throw new SendResponseError("Unexpected ServerTransaction timeout for " + st.getRequest());
         } else {
-            // client transaction timeout, treated as 408 (Request Timeout)
             Request req = timeoutEvent.getClientTransaction().getRequest();
-            logger.warn("ClientTransaction timeout for request {}", req.getMethod());
-            try {
-                Response errorResponse = brokerContext.messageFactory.createResponse(Response.REQUEST_TIMEOUT, req);
-                if (timeoutEvent.getSource() instanceof InternalServiceProvider) {
-                    incomingAppProvider.sendResponse(errorResponse);
-                } else {
-                    imScfProvider.sendResponse(errorResponse);
-                }
-            } catch (SipException | ParseException e) {
-                throw new SendResponseError("Unexpected ClientTransaction timeout for " + req.getMethod(), e);
-            } finally {
-                // if this was invite timeout, the dialog must be checked and session removed eventually
-                if(req.getMethod().equals(Request.INVITE)){
-                    checkDialogAndRemoveSession(outgoingDialog);
+            // client transaction timeout for INVITE, treat as 408 (Request Timeout)
+            if(req.getMethod().equals(Request.INVITE)){
+                try {
+                    // INVITE failed, remove dialog
+                    checkDialogAndRemoveSession(timeoutEvent.getClientTransaction().getDialog());
+                    respondToPendingRequestsOnDialogTerminatingResponse();
+                    Response errorResponse = createNewResponse(Response.REQUEST_TIMEOUT, req);
+                    lastServerTransaction.sendResponse(errorResponse);
+                    brokerContext.getUsageParameters().incrementAbortedAuxSessionsCount(1);
+                } catch (InvalidArgumentException | SipException e) {
+                    logger.warn("Error while sending error response", e);
+                    brokerContext.getUsageParameters().incrementAbortedAuxSessionsCount(1);
                 }
             }
         }
@@ -162,40 +156,69 @@ public class AuxiliarySession extends SessionEventHandler {
     private void handleResponse(ResponseEvent event) throws SendResponseError {
         logger.debug("handleResponse, statusCode: {}", event.getResponse().getStatusCode());
 
-        Dialog dialogToForward;
-        if (incomingDialog == event.getDialog()) {
-            dialogToForward = outgoingDialog;
-        } else {
-            dialogToForward = incomingDialog;
-        }
         Response response = event.getResponse();
-        if (response.getStatusCode() > Response.TRYING && response.getStatusCode() <= Response.OK) {
-
-            processResponseForward(event);
-
-        } else if (response.getStatusCode() == Response.SESSION_PROGRESS) {
+        if (response.getStatusCode() == Response.SESSION_PROGRESS) {
             processResponseSessionProgress(event);
 
         } else if (response.getStatusCode() == Response.TRYING) {
             logger.debug("Received provisional response: {}, no action.", response.getStatusCode());
 
-        } else {
-            // error response, pass it back to the other side
+        } else if (response.getStatusCode() >= Response.MULTIPLE_CHOICES) {
+            logger.debug("Received error response: {}, forwarding.", response.getStatusCode());
+
             try {
-                Response newErrorResponse = MessageUtils.createForwardedResponse(response, dialogToForward,
-                        lastIncomingRequest, brokerContext.messageFactory, brokerContext.getBrokerContactHeader(),
-                        logger);
-                if (event.getSource() instanceof InternalServiceProvider) {
-                    incomingAppProvider.sendResponse(newErrorResponse);
-                } else {
-                    imScfProvider.sendResponse(newErrorResponse);
-                }
-            } catch (SipException | ParseException e) {
-                throw new SendResponseError("Unable to forward error response", e);
+                respondToPendingRequestsOnDialogTerminatingResponse();
+            } catch (SipException | InvalidArgumentException e) {
+                logger.warn("Error while sending terminating responses", e);
             }
+            processResponseForward(event);
+
+        } else {
+            // any other response to forward to the other side
+            processResponseForward(event);
         }
     }
 
+    /**
+     * Responds to pending INFO/PRACK requests.
+     * Should be used in conjunction with error response sent on this dialog.
+     */
+    private void respondToPendingRequestsOnDialogTerminatingResponse() throws SipException, InvalidArgumentException {
+        logger.trace("respondToPendingRequestsOnDialogTerminatingResponse");
+
+        if(infoRequest != null){
+            logger.debug("Found pending INFO request transaction, send response");
+            infoServerTransaction.sendResponse(createNewResponse(Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
+                                                                    infoRequest));
+            infoServerTransaction = null;
+            infoRequest = null;
+        }
+
+        if(prackRequest != null){
+            logger.debug("Found pending PRACK request transaction, send response");
+            prackServerTransaction.sendResponse(createNewResponse(Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST,
+                                                                    prackRequest));
+            prackServerTransaction = null;
+            prackRequest = null;
+        }
+    }
+
+    /**
+     * Creates new response for the request
+     *
+     * @param statusCode status code
+     * @param request request to create response for
+     *
+     * @return new Response object
+     */
+    private Response createNewResponse(int statusCode, Request request){
+        try {
+            return brokerContext.messageFactory.createResponse(statusCode, request);
+        } catch (ParseException e) {
+            // will not happen if Response constants are used
+            throw new IllegalArgumentException("Unexpected response code: " + statusCode, e);
+        }
+    }
 
     private void processResponseSessionProgress(ResponseEvent event) throws SendResponseError {
         logger.trace("processResponseSessionProgress");
@@ -236,18 +259,18 @@ public class AuxiliarySession extends SessionEventHandler {
         Request req;
         ServerTransaction st;
         if (cseq.getMethod().equals(Request.INFO)) {
-            req = lastIncomingInfoRequest;
-            st = lastInfoServerTransaction;
+            req = infoRequest;
+            st = infoServerTransaction;
             if (incomingResponse.getStatusCode() >= Response.OK) {
-                lastIncomingInfoRequest = null;
-                lastInfoServerTransaction = null;
+                infoRequest = null;
+                infoServerTransaction = null;
             }
         } else if (cseq.getMethod().equals(Request.PRACK)) {
-            req = lastIncomingPrackRequest;
-            st = lastPrackServerTransaction;
+            req = prackRequest;
+            st = prackServerTransaction;
             if (incomingResponse.getStatusCode() >= Response.OK) {
-                lastIncomingPrackRequest = null;
-                lastPrackServerTransaction = null;
+                prackRequest = null;
+                prackServerTransaction = null;
             }
         } else {
             // INVITE or BYE
@@ -257,6 +280,11 @@ public class AuxiliarySession extends SessionEventHandler {
                 lastIncomingRequest = null;
                 lastServerTransaction = null;
             }
+        }
+
+        if(st == null){
+            logger.debug("ServerTransaction already terminated, request not forwarded");
+            return;
         }
 
         try {
@@ -287,7 +315,7 @@ public class AuxiliarySession extends SessionEventHandler {
         } else if (request.getMethod().equals(Request.ACK)) {
             sendAckToNextAs(request);
         } else if (request.getMethod().equals(Request.PRACK)) {
-            lastPrackServerTransaction = event.getServerTransaction();
+            prackServerTransaction = event.getServerTransaction();
             handlePrack(event);
         } else {
             handleInfoRequest(event);
@@ -303,14 +331,14 @@ public class AuxiliarySession extends SessionEventHandler {
         logger.trace("handlePrack");
 
         Request incomingPrack = event.getRequest();
-        if (checkRetransmission(lastIncomingPrackRequest, incomingPrack)) {
+        if (checkRetransmission(prackRequest, incomingPrack)) {
             logger.trace("PRACK retransmission, dropping request.");
             return;
         }
 
         // keep PRACK server transaction and request
-        lastPrackServerTransaction = event.getServerTransaction();
-        lastIncomingPrackRequest = incomingPrack;
+        prackServerTransaction = event.getServerTransaction();
+        prackRequest = incomingPrack;
         try {
             Request prack = outgoingDialog.createPrack(lastSessionProgressResponse);
             ClientTransaction ct = imScfProvider.getNewClientTransaction(prack);
@@ -326,26 +354,26 @@ public class AuxiliarySession extends SessionEventHandler {
         logger.trace("handleInfoRequest");
 
         Request incomingRequest = event.getRequest();
-        if (checkRetransmission(lastIncomingInfoRequest, incomingRequest)) {
+        if (checkRetransmission(infoRequest, incomingRequest)) {
             logger.trace("Retransmission, dropping request.");
             return;
         }
 
         try {
-            lastIncomingInfoRequest = incomingRequest;
-            lastInfoServerTransaction = event.getServerTransaction();
+            infoRequest = incomingRequest;
+            infoServerTransaction = event.getServerTransaction();
             Dialog dialogToForward;
             ClientTransaction ct;
             if (event.getDialog() == outgoingDialog) {
                 logger.trace("Request initiated by IM-SCF");
                 dialogToForward = incomingDialog;
-                Request newRequest = MessageUtils.createOnDialogRequest(lastIncomingInfoRequest, dialogToForward,
+                Request newRequest = MessageUtils.createOnDialogRequest(infoRequest, dialogToForward,
                         brokerContext.getBrokerContactHeader(), logger);
                 ct = incomingAppProvider.getNewClientTransaction(newRequest);
             } else {
                 logger.trace("Request initiated by application");
                 dialogToForward = outgoingDialog;
-                Request newRequest = MessageUtils.createOnDialogRequest(lastIncomingInfoRequest, dialogToForward,
+                Request newRequest = MessageUtils.createOnDialogRequest(infoRequest, dialogToForward,
                         brokerContext.getBrokerContactHeader(), logger);
                 ct = imScfProvider.getNewClientTransaction(newRequest);
             }
@@ -434,10 +462,9 @@ public class AuxiliarySession extends SessionEventHandler {
             logger.warn("Unable to send INVITE", e);
             try {
                 // for INVITE try to send error response back to AS
-                Response response = brokerContext.messageFactory.createResponse(Response.SERVICE_UNAVAILABLE, event
-                        .getRequest());
+                Response response = createNewResponse(Response.SERVICE_UNAVAILABLE, event.getRequest());
                 incomingAppProvider.sendResponse(response);
-            } catch (SipException | ParseException e1) {
+            } catch (SipException e1) {
                 // that's really bad
                 logger.error("Unable to send error response: {}", e1);
                 throw new UnrecoverableError(e1);
@@ -519,6 +546,11 @@ public class AuxiliarySession extends SessionEventHandler {
     private void checkDialogAndRemoveSession(Dialog dialog) {
         logger.trace("checkDialogAndRemoveSession");
 
+        if (outgoingDialog == null && incomingDialog == null) {
+            logger.trace("Both dialogs are null, nothing to do");
+            return;
+        }
+
         if (incomingDialog != null && dialog.getCallId().equals(incomingDialog.getCallId())) {
             logger.trace("Dialog end from AS");
             incomingDialog = null;
@@ -535,17 +567,6 @@ public class AuxiliarySession extends SessionEventHandler {
         }
     }
 
-    /**
-     * Removes AUX session from the map, increments counters.
-     */
-    private void removeSessionOnError(String errorMsg) {
-        logger.debug("removeSessionOnError: {}", errorMsg);
-
-        brokerContext.getSessionManager().removeSession(this.getID());
-        brokerContext.getUsageParameters().incrementRunningAuxSessionsCount(-1);
-        brokerContext.getUsageParameters().incrementAbortedAuxSessionsCount(1);
-    }
-
 
     /**
      * Sends provisional 100 response, it must be called when server transaction is already there
@@ -555,11 +576,11 @@ public class AuxiliarySession extends SessionEventHandler {
     private void sendProvisionalResponse(Request request, ServerTransaction serverTransaction) {
         try {
             // send 100 Trying
-            Response response = brokerContext.messageFactory.createResponse(Response.TRYING, request);
+            Response response = createNewResponse(Response.TRYING, request);
             serverTransaction.sendResponse(response);
             logger.debug("Send provisional response:\n{}", response);
 
-        } catch (ParseException | InvalidArgumentException | SipException e) {
+        } catch (InvalidArgumentException | SipException e) {
             // not possible to send provisional response, no panic yet
             logger.warn("Unable to send provisional response", e);
         }

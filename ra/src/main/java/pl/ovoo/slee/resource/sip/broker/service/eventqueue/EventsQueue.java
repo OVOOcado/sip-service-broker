@@ -67,22 +67,17 @@ public class EventsQueue {
      * @param sessionHandler - session handler to correlate
      */
     public void enqueueEvent(EventObject event, SessionEventHandler sessionHandler) {
-        synchronized (sessionHandler) {
-            SessionTasks sessionTasks = sessionHandler.getItsSessionTasks();
-            boolean statusChanged = sessionTasks.enqueueAndGetStatusChange(event);
-            if (statusChanged) {
-                // status changed from empty to enqueued,
-                // must put this session tasks into execution
-                eventsExecutor.execute(sessionTasks);
-                if(logger.isDebugEnabled()){
-                    Object[] args = new Object[]{sessionHandler.getID(),
-                                                eventsBlockingQueue.size(),
-                                                eventsExecutor.getActiveCount()};
-                    logger.debug("Enqueued SessionTasks for {}, BlockingQueue size: {}, Executor ActiveCount: {}",args);
-                }
-            }
-            // statusChanged: false -> event has been enqueued/added to its running sessionTasks thread
-            // and it would be processed by this thread immediately after previous event returns
+        if(sessionHandler == null){
+            logger.warn("No session handler found for event {}", event.getClass().getSimpleName());
+            return;
+        }
+        SessionTasks sessionTasks = sessionHandler.getItsSessionTasks();
+        sessionTasks.enqueueAndExecute(event, eventsExecutor);
+        if(logger.isDebugEnabled()){
+            Object[] args = new Object[]{sessionHandler.getID(),
+                    eventsBlockingQueue.size(),
+                    eventsExecutor.getActiveCount()};
+            logger.debug("Enqueued SessionTasks for {}, BlockingQueue size: {}, Executor ActiveCount: {}",args);
         }
     }
 }

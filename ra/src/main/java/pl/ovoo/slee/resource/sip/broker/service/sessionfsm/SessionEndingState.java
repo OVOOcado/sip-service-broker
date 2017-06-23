@@ -30,6 +30,7 @@ import javax.sip.Dialog;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
+import javax.sip.TimeoutEvent;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -147,4 +148,39 @@ public class SessionEndingState extends SessionStateBase {
         return state.handleInvite(event);
     }
 
+    @Override
+    protected State processTimeout(TimeoutEvent timeoutEvent) throws SendResponseError {
+        logger.trace("processTimeout");
+
+        if (timeoutEvent.isServerTransaction()) {
+            // server transaction timeouts are unexpected, there is no logic predefined for this
+            ServerTransaction st = timeoutEvent.getServerTransaction();
+            logger.error("ServerTransaction timeout for request {}", st.getRequest().getMethod());
+            throw new SendResponseError("Unexpected ServerTransaction timeout for " + st.getRequest());
+        } else {
+
+            if(timeoutEvent.getClientTransaction().getRequest().getMethod().equals(Request.BYE)){
+
+                // find session handler from client transaction
+                B2BDialogsHandler respondingHandler = fetchB2BHandlerFromClientTx(timeoutEvent.getClientTransaction());
+
+                B2BDialogsHandler handlerToRespond;
+                if(context.isByeInitiatedByCallingParty()) {
+                    logger.trace("ByeInitiatedByCallingParty");
+                    // BYE response goes back towards Calling party
+                    handlerToRespond = respondingHandler.getPreviousHandler();
+                } else {
+                    logger.trace("ByeInitiatedByCalledParty");
+                    // BYE response goes back towards Called party
+                    handlerToRespond = respondingHandler.getNextHandler();
+                }
+
+                logger.debug("handler to send response: {}", handlerToRespond);
+                Response response = createNewResponse(Response.OK, handlerToRespond.getLastIncomingRequest());
+                handlerToRespond.sendNewResponse(response);
+            }
+        }
+
+        return this;
+    }
 }

@@ -44,10 +44,12 @@ import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionUnavailableException;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ExtensionHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import java.text.ParseException;
 import java.util.EventObject;
+import java.util.Iterator;
 
 import static pl.ovoo.slee.resource.sip.broker.service.B2BDialogsHandler.HandlerState.ANSWERED;
 import static pl.ovoo.slee.resource.sip.broker.service.B2BDialogsHandler.HandlerState.INVITED;
@@ -241,15 +243,14 @@ public abstract class SessionStateBase implements State {
                 context.brokerContext.getUsageParameters().incrementRunningOrchestratedSessionsCount(1);
 
             } else {
-                B2BDialogsHandler invitingHandler = context.getCurrentHandler();
-                logger.trace("INVITE from {}, assign dialog/transaction data to the current handler", invitingHandler);
 
-                if(invitingHandler.getLastIncomingRequest() != null &&
-                        invitingHandler.getLastIncomingRequest().getHeader(CallIdHeader.NAME).equals(
-                                incomingRequest.getHeader(CallIdHeader.NAME))){
+                if ( checkInviteAlreadyProcessed(incomingRequest) ){
                     logger.warn("INVITE retransmission for already processing dialog");
                     return false;
                 }
+
+                B2BDialogsHandler invitingHandler = context.getCurrentHandler();
+                logger.trace("INVITE from {}, assign dialog/transaction data to the current handler", invitingHandler);
 
                 serverTransaction = invitingHandler.getNewServerTransaction(incomingRequest);
 
@@ -786,6 +787,45 @@ public abstract class SessionStateBase implements State {
             return this;
         } else {
             return new ChainingState(session);
+        }
+    }
+
+    /**
+     * Checks if this incoming INVITE has been already processed and its CallId/last Via header pair stored
+     * @param invite - incoming INVITE request to check
+     * @return true if the INVITE is a retransmission
+     */
+    @SuppressWarnings("unchecked")
+    private boolean checkInviteAlreadyProcessed(Request invite){
+        ViaHeader storedVia = context.findInitialInviteLastVia((CallIdHeader) invite.getHeader(CallIdHeader.NAME));
+        if (storedVia != null) {
+            ViaHeader viaHeader = null;
+            Iterator<ViaHeader> viaHeaders = invite.getHeaders(ViaHeader.NAME);
+            while (viaHeaders.hasNext()) {
+                viaHeader = viaHeaders.next();
+            }
+
+            if (storedVia.equals(viaHeader)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Creates new response with provided status code for given request
+     *
+     * @param statusCode status code of the response
+     * @param request    request to create response for
+     * @return new Response object
+     */
+    protected Response createNewResponse(int statusCode, Request request) {
+        try {
+            return context.getMessageFactory().createResponse(statusCode, request);
+        } catch (ParseException ignored) {
+            // will not happen if Response constants are used
+            throw new IllegalArgumentException("Unexpected response code: " + statusCode);
         }
     }
 }
