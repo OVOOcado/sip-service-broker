@@ -5,12 +5,12 @@
     <parent>
         <groupId>pl.ovoo</groupId>
         <artifactId>ovoo-sip-broker</artifactId>
-        <version>1.0.10</version>
+        <version>1.0.11-SNAPSHOT</version>
     </parent> 
 
     <groupId>pl.ovoo</groupId>
     <artifactId>ovoo-sip-broker-events</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.11-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

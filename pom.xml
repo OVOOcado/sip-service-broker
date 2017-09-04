@@ -4,7 +4,7 @@
 
     <groupId>pl.ovoo</groupId>
     <artifactId>ovoo-sip-broker</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.11-SNAPSHOT</version>
     <name>OVOO SIP Service Broker</name>
 
     <packaging>pom</packaging>
