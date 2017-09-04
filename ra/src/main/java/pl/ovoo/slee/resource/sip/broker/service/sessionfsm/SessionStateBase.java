@@ -777,9 +777,12 @@ public abstract class SessionStateBase implements State {
      */
     protected State sendNewResponseBack(B2BDialogsHandler handlerToRespond, int statusCode) throws SendResponseError {
         logger.debug("Sending response towards previous handler: {}", handlerToRespond);
-        Response response = createErrorResponse(statusCode, handlerToRespond.getLastIncomingRequest());
-
-        handlerToRespond.forwardResponse(response, handlerToRespond.getIncomingDialog());
+        if(handlerToRespond.getLastIncomingRequest() != null){
+            Response response = createErrorResponse(statusCode, handlerToRespond.getLastIncomingRequest());
+            handlerToRespond.forwardResponse(response, handlerToRespond.getIncomingDialog());
+        } else {
+            logger.debug("Last incoming request null, final response already sent back");
+        }
 
         // stay in ChainingState when sending error response back
         // this allow AS to decide how to continue with the call/session

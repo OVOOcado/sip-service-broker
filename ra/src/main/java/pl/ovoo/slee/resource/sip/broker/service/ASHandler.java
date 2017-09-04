@@ -134,8 +134,8 @@ public class ASHandler extends B2BDialogsHandler {
                 throw new SendResponseError("Not possible to send response back to: " + endpoint.getUriString(), e);
             }
         } else {
-            logger.error("No server transaction for Request from {}", endpoint.getUriString());
-            throw new SendResponseError("No server transaction for Request from " + endpoint.getUriString());
+            // no server transaction -> final response already sent
+            logger.debug("No server transaction for Request from {}", endpoint.getUriString());
         }
     }
 
